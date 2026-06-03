@@ -1,7 +1,7 @@
 # 🛒 DQLab Retail Crisis & Recovery — Hackathon Solution 
 
 **Kode Soal:** `HACK-2026-PYTHON-01`
-**Event:** Hackathon Python DQLab × UjiKompetensi
+**Event:** Hackathon Python DQLab × UjiKompetensi Tanggal 9 Mei 2026
 **Script:** `solusi-retail.py`
 
 ---
@@ -20,14 +20,14 @@ DQFresh Mart mengalami penurunan penjualan selama 6 bulan terakhir. Di balik kon
 
 ```
 .
-├── solusi-retail.py          # Script utama (satu-satunya yang perlu dijalankan)
+├── solusi-retail.py          # Script utama (jawaban, yg perlu dijalankan)
 ├── sales_transaction.csv     # Dataset input (30 hari transaksi)
 ├── retail_insight.xlsx       # OUTPUT: Excel dengan 2 sheet
 ├── rising_star_index.png     # OUTPUT: Chart pertumbuhan relatif (base 100)
 └── rising_star_actual.png    # OUTPUT: Chart nilai penjualan aktual
 ```
 
-> ⚠️ File output (`retail_insight.xlsx`, `*.png`) di-generate otomatis saat script dijalankan. 
+> ⚠️ 3 File output di-generate otomatis saat script dijalankan. 
 
 ---
 
@@ -194,4 +194,4 @@ rules = association_rules(freq_items, metric='lift', min_threshold=1)
 
 ---
 
-*Built with ❤️ for DQLab × UjiKompetensi Hackathon 2026*
+*Huge Thanks for DQLab × UjiKompetensi Hackathon 2026*
