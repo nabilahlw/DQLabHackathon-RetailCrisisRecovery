@@ -1,197 +1,133 @@
-# 🛒 DQLab Retail Crisis & Recovery — Hackathon Solution 
+# 🛒 DQLab Retail Crisis & Recovery — Hackathon Solution
 
-**Kode Soal:** `HACK-2026-PYTHON-01`
-**Event:** Hackathon Python DQLab × UjiKompetensi Tanggal 9 Mei 2026
-**Script:** `solusi-retail.py`
+**Challenge Code:** HACK-2026-PYTHON-01  
+**Event:** DQLab × UjiKompetensi Python Hackathon (May 2026)
+
+## 📌 Project Overview
+
+DQFresh Mart experienced a sales decline over the last six months. However, some niche products were consistently growing but remained unnoticed by traditional sales reports.
+
+This project builds an automated analytics pipeline to:
+
+- Identify **Rising Star Products** using Moving Average trend analysis
+- Discover **Product Bundling Opportunities** using the Apriori algorithm
+- Generate business insights through data visualization and reporting
 
 ---
 
-## 📌 Deskripsi Proyek
+## 📂 Project Structure
 
-DQFresh Mart mengalami penurunan penjualan selama 6 bulan terakhir. Di balik kondisi ini, terdapat produk-produk kecil yang justru **tumbuh konsisten** namun tidak terdeteksi oleh laporan tradisional (top 10 produk). Proyek ini membangun pipeline analisis otomatis untuk:
-
-1. Mendeteksi **Rising Star** — produk dengan tren kenaikan Moving Average ≥ 12 hari berturut-turut
-2. Menemukan **Potential Packaging** — kombinasi produk yang sering dibeli bersamaan menggunakan algoritma Apriori
-3. Menghasilkan **visualisasi** perbandingan pertumbuhan relatif dan nilai aktual
-
----
-
-## 📁 Struktur File
-
-```
+```text
 .
-├── solusi-retail.py          # Script utama (jawaban, yg perlu dijalankan)
-├── sales_transaction.csv     # Dataset input (30 hari transaksi)
-├── retail_insight.xlsx       # OUTPUT: Excel dengan 2 sheet
-├── rising_star_index.png     # OUTPUT: Chart pertumbuhan relatif (base 100)
-└── rising_star_actual.png    # OUTPUT: Chart nilai penjualan aktual
+├── solusi-retail.py
+├── sales_transaction.csv
+├── retail_insight.xlsx
+├── rising_star_index.png
+└── rising_star_actual.png
 ```
 
-> ⚠️ 3 File output di-generate otomatis saat script dijalankan. 
+Generated outputs:
+
+- **retail_insight.xlsx** → Rising Star products & bundling recommendations
+- **rising_star_index.png** → Relative growth chart (Base 100)
+- **rising_star_actual.png** → Actual sales value chart
 
 ---
 
-## 🔧 Requirements
-
-| Library    | Versi   | Fungsi                                      |
-|------------|---------|---------------------------------------------|
-| Python     | 3.10–3.14 | Runtime                                   |
-| `pandas`   | 2.3.1   | Manipulasi data, rolling window, groupby    |
-| `matplotlib` | 3.10.7 | Visualisasi line chart                    |
-| `mlxtend`  | 0.23.4  | Algoritma Apriori & Association Rules       |
-| `openpyxl` | 3.1.5   | Export Excel + formatting (bold, autowidth) |
-
----
-
-## 🚀 Cara Menjalankan
-### Instalasi
+## 🚀 Installation
 
 ```bash
-pip install pandas==2.3.1 matplotlib==3.10.7 mlxtend==0.23.4 openpyxl==3.1.5
+pip install pandas matplotlib mlxtend openpyxl
 ```
 
-Pastikan `sales_transaction.csv` berada di folder yang sama dengan `solusi-retail.py`, lalu jalankan:
+Run the script:
 
 ```bash
 python solusi-retail.py
 ```
 
-Script akan menghasilkan 3 file output langsung di folder tersebut.
+Make sure `sales_transaction.csv` is in the same directory.
 
 ---
 
-## 📊 Sumber Data: tabel `sales_transaction.xlsx`
+## 📊 Dataset
 
-| Kolom          | Tipe    | Keterangan                              |
-|----------------|---------|-----------------------------------------|
-| `nomor_struk`  | string  | Nomor invoice / struk transaksi         |
-| `tgl_transaksi`| date    | Tanggal transaksi (format: YYYY-MM-DD)  |
-| `kode_produk`  | string  | Kode unik SKU produk                    |
-| `nama_produk`  | string  | Nama produk                             |
-| `jumlah_terjual` | int   | Quantity produk yang terjual            |
-| `harga`        | float   | Harga satuan produk                     |
-| `total_nilai`  | float   | `harga × jumlah_terjual`                |
+The dataset contains 30 days of retail transaction data with the following fields:
 
-- Periode: **30 hari** transaksi
-- Tidak ada data yang perlu dicleansing
-
----
-
-## 🧮 Metodologi & Rumus
-
-### 1. Moving Average (MA) — Smoothing
-
-Digunakan untuk mengurangi fluktuasi harian yang ekstrem.
-
-```
-MA(t) = rata-rata total_nilai selama 3 hari terakhir (window=3)
-```
-
-### 2. Deteksi Tren Naik (Rising Trend)
-
-Sebuah produk masuk **sesi tren naik** jika:
-
-```
-MA(hari ini) > MA(hari sebelumnya)
-```
-
-Lalu dihitung berapa hari kenaikan tersebut terjadi **secara berurutan** (consecutive days) per sesi tren.
-
-### 3. Filter Rising Star
-
-Produk hanya masuk Rising Star jika pernah mengalami:
-
-```
-Consecutive Rising Days ≥ 12 hari
-```
-
-### 4. Growth % (Metode Endpoint vs Startpoint)
-
-Pertumbuhan dihitung dari titik awal ke titik akhir **sesi tren naik** terpanjang:
-
-```
-Growth % = ((MA_akhir - MA_awal) / MA_awal) × 100
-```
-
-Diambil nilai maksimum Growth % per produk (dari seluruh sesi tren yang ada).
-
-### 5. Normalisasi Base 100 (untuk Chart Index)
-
-Agar semua produk bisa dibandingkan secara adil (terlepas dari skala nilai absolutnya):
-
-```
-Normalized(t) = (MA(t) / MA_pertama) × 100
-```
-
-Semua produk dimulai dari titik 100 pada hari pertama pengamatan.
-
-### 6. Algoritma Apriori — Frequent Itemset Mining
-
-Membentuk basket matrix: satu baris per struk, satu kolom per produk (nilai binary 0/1).
-
-```python
-basket = (raw.groupby(['nomor_struk', 'nama_produk'])['jumlah_terjual']
-    .sum().unstack(fill_value=0) > 0).astype(int)
-
-freq_items = apriori(basket, min_support=0.01, use_colnames=True)
-```
-
-Parameter:
-- `min_support = 0.01` → minimal 1% dari total transaksi
-
-### 7. Association Rules
-
-```python
-rules = association_rules(freq_items, metric='lift', min_threshold=1)
-```
-
-**Filter akhir:**
-- Minimal **satu item** dalam rule (antecedent atau consequent) harus merupakan produk Rising Star
-- `lift ≥ 2`
-- Diurutkan: **Lift → Support → Confidence** (descending)
-
-**Interpretasi metrik:**
-
-| Metrik     | Rumus                                      | Arti                                              |
-|------------|--------------------------------------------|---------------------------------------------------|
-| Support    | P(A ∩ B)                                   | Seberapa sering kombinasi A+B muncul              |
-| Confidence | P(B\|A) = P(A ∩ B) / P(A)                 | Jika beli A, seberapa sering juga beli B          |
-| Lift       | Confidence / P(B)                          | Apakah A dan B benar-benar saling mempengaruhi    |
-
-> Lift > 1 = positif, Lift ≥ 2 = asosiasi kuat (dipakai di proyek ini)
+| Column | Description |
+|----------|-------------|
+| nomor_struk | Transaction ID |
+| tgl_transaksi | Transaction Date |
+| kode_produk | Product Code |
+| nama_produk | Product Name |
+| jumlah_terjual | Quantity Sold |
+| harga | Unit Price |
+| total_nilai | Sales Value |
 
 ---
 
-## 📤 Output
+## 🔍 Methodology
 
-### 1. `retail_insight.xlsx`
+### 1. Rising Star Detection
 
-| Sheet               | Kolom                                                      |
-|---------------------|------------------------------------------------------------|
-| **Rising Star**     | Kode Produk, Nama Produk, Growth %, Total Penjualan        |
-| **Potential Packaging** | Jika Membeli, Maka Membeli, Jumlah Invoice, Support, Confidence, Lift |
+A 3-day Moving Average (MA) is used to smooth daily fluctuations.
 
-### 2. `rising_star_index.png` — Pertumbuhan Relatif
+Products are classified as **Rising Stars** if their Moving Average increases continuously for at least **12 consecutive days**.
 
-- Line chart semua Rising Star dinormalisasi base 100
-- Dibandingkan dengan Top 3 produk berdasarkan total penjualan (garis abu-abu putus)
-- Tujuan: membandingkan **kecepatan tumbuh** secara adil tanpa pengaruh skala nilai
+Growth is calculated as:
 
-### 3. `rising_star_actual.png` — Nilai Penjualan Aktual
+```text
+Growth % = ((Ending MA - Starting MA) / Starting MA) × 100
+```
 
-- Line chart Rising Star dengan nilai `total_nilai` asli (tanpa normalisasi)
-- Memvisualisasikan **mengapa produk ini tidak terdeteksi** — nilainya kecil dibanding Top 3
+### 2. Product Bundling Analysis
+
+Market Basket Analysis is performed using the **Apriori Algorithm**.
+
+Parameters:
+
+- Minimum Support: 1%
+- Minimum Lift: 2
+- At least one product in the rule must be a Rising Star
+
+Association Rules are ranked by:
+
+1. Lift
+2. Support
+3. Confidence
 
 ---
 
-## 💡 Insight Bisnis
+## 📈 Outputs
 
-| Temuan              | Rekomendasi                                              |
-|---------------------|----------------------------------------------------------|
-| Rising Star teridentifikasi | Segera tambah stok produk tersebut              |
-| Potential Packaging | Buat paket bundling, promo cross-sell, atur display toko |
-| Lift tinggi         | Produk A dan B saling "menarik" — efektif dijual bersama |
+### Rising Star Products
+
+Identifies products with strong and consistent growth trends.
+
+### Potential Packaging
+
+Recommends product combinations frequently purchased together, suitable for:
+
+- Product bundling
+- Cross-selling campaigns
+- Store layout optimization
+
+### Visualizations
+
+- **Relative Growth Chart** (Base 100 normalization)
+- **Actual Sales Value Chart**
+
+These charts help compare growth performance and reveal promising products hidden behind low absolute sales volume.
 
 ---
 
-*Huge Thanks for DQLab × UjiKompetensi Hackathon 2026*
+## Business Impact
+
+- Detect emerging products before they become top sellers
+- Improve inventory planning
+- Create effective bundling strategies
+- Increase revenue through cross-selling opportunities
+
+---
+
+**Achievement:** Top 100 Finalist (#88 of 464 Participants) — DQLab Retail Crisis & Recovery Hackathon 2026 🚀
